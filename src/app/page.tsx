@@ -324,30 +324,31 @@ export default function Home() {
               </motion.div>
             </div>
 
-            {/* Hero Brain Video */}
+            {/* Hero Image */}
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.8, delay: 0.3 }}
               className="relative"
             >
-              <div className="relative flex items-center justify-center min-h-[340px] sm:min-h-[440px] lg:min-h-[500px]">
-                {/* Ambient glow behind brain */}
-                <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                  <div className="w-[70%] h-[70%] rounded-full bg-purple-600/20 blur-[80px]" />
-                </div>
+              <div className="relative rounded-2xl overflow-hidden glow-purple">
+                <img
+                  src="/images/hero.png"
+                  alt="MassaPro AI Finance Platform"
+                  className="w-full h-auto object-cover"
+                />
+                {/* Overlay gradient */}
+                <div className="absolute inset-0 bg-gradient-to-t from-[#030712] via-transparent to-transparent opacity-60" />
 
-                {/* Rotating Brain Video - mix-blend-mode: screen makes black bg transparent */}
-                <motion.video
-                  autoPlay
-                  loop
-                  muted
-                  playsInline
-                  style={{ rotate: brainRotate }}
-                  className="w-[65%] max-w-[400px] h-auto mix-blend-screen drop-shadow-[0_0_80px_rgba(147,51,234,0.6)]"
-                >
-                  <source src="/videos/brain.mp4" type="video/mp4" />
-                </motion.video>
+                {/* Rotating Brain - center overlay */}
+                <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                  <motion.img
+                    src="/images/brain-transparent.png"
+                    alt="MassaPro Brain"
+                    style={{ rotate: brainRotate }}
+                    className="w-[55%] max-w-[320px] h-auto drop-shadow-[0_0_60px_rgba(147,51,234,0.5)]"
+                  />
+                </div>
               </div>
               {/* Floating card */}
               <motion.div
