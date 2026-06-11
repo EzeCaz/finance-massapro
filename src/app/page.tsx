@@ -64,7 +64,7 @@ function HeroBrainOverlay() {
 
   // Palpitate effect: scale pulses based on scroll position
   const brainScale = useTransform(scrollY, [0, 300, 600, 900, 1200], [1, 1.08, 1, 1.06, 1])
-  const brainOpacity = useTransform(scrollY, [0, 400], [0.9, 0.3])
+  const brainOpacity = useTransform(scrollY, [0, 400], [0.7, 0.2])
   const brainY = useTransform(scrollY, [0, 600], [0, -40])
 
   return (
