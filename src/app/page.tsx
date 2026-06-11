@@ -198,7 +198,7 @@ function JourneyStep({ step, title, desc, icon, isActive, onClick, index }: {
 function PricingRow({ feature, traditional, massapro }: { feature: string; traditional: React.ReactNode; massapro: React.ReactNode }) {
   return (
     <tr className="border-b border-white/5">
-      <td className="py-4 pr-4 text-sm text-slate-400">{feature}</td>
+      <td className="py-4 pl-8 pr-4 text-sm text-slate-400">{feature}</td>
       <td className="py-4 px-4 text-sm text-slate-500 text-center">{traditional}</td>
       <td className="py-4 pl-4 text-sm text-purple-300 text-center font-medium">{massapro}</td>
     </tr>
@@ -827,7 +827,7 @@ export default function Home() {
               <CardContent className="p-0">
                 {/* Table header */}
                 <div className="grid grid-cols-3 gap-0">
-                  <div className="p-5 border-b border-white/5" />
+                  <div className="p-5 pl-8 border-b border-white/5" />
                   <div className="p-5 border-b border-white/5 text-center">
                     <span className="text-xs font-semibold tracking-wider text-slate-500 uppercase">Traditional</span>
                   </div>
