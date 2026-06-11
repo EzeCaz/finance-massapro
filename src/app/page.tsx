@@ -698,7 +698,7 @@ export default function Home() {
               </div>
             </div>
 
-            <div className="relative order-1 lg:order-2">
+            <div className="relative order-1 lg:order-2 self-center">
               <motion.div
                 whileHover={{ scale: 1.02 }}
                 transition={{ duration: 0.3 }}
@@ -707,7 +707,7 @@ export default function Home() {
                 <img
                   src="/images/omnichannel.png"
                   alt="Omni-Channel Communication"
-                  className="w-full h-auto object-cover"
+                  className="w-full h-auto max-h-[480px] object-contain object-center"
                 />
               </motion.div>
             </div>
