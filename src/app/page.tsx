@@ -284,7 +284,7 @@ export default function Home() {
             {/* Logo */}
             <a href="#" className="flex items-center gap-3 group">
               <img src="/images/massapro-logo.png" alt="MassaPro Logo" className="w-9 h-9 rounded-lg shadow-lg shadow-purple-500/20 group-hover:shadow-purple-500/40 transition-shadow object-contain" />
-              <span className="text-xl font-bold tracking-tight">
+              <span className="text-xl font-bold tracking-tight font-brand">
                 Massa<span className="gradient-text">Pro</span>
               </span>
             </a>
@@ -1057,7 +1057,7 @@ export default function Home() {
           <div className="flex flex-col sm:flex-row items-center justify-between gap-6">
             <div className="flex items-center gap-3">
               <img src="/images/massapro-logo.png" alt="MassaPro Logo" className="w-8 h-8 rounded-lg shadow-lg shadow-purple-500/20 object-contain" />
-              <span className="text-lg font-bold tracking-tight">
+              <span className="text-lg font-bold tracking-tight font-brand">
                 Massa<span className="gradient-text">Pro</span>
               </span>
             </div>

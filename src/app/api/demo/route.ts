@@ -12,7 +12,7 @@ function getAutoReplyHTML(userEmail: string) {
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
-<body style="margin:0; padding:0; background-color:#030712; font-family:'Helvetica Neue',Arial,sans-serif;">
+<body style="margin:0; padding:0; background-color:#030712; font-family:'Calibri','Calibri Light','Carlito','Helvetica Neue',Arial,sans-serif;">
   <table width="100%" cellpadding="0" cellspacing="0" style="background-color:#030712; min-height:100vh;">
     <tr>
       <td align="center" style="padding:40px 20px;">
@@ -27,7 +27,7 @@ function getAutoReplyHTML(userEmail: string) {
                     <span style="font-size:24px; color:#ffffff;">&#9889;</span>
                   </td>
                   <td style="padding-left:12px;">
-                    <span style="font-size:22px; font-weight:700; color:#ffffff; letter-spacing:-0.5px;">Massa<span style="color:#c084fc;">Pro</span></span>
+                    <span style="font-size:22px; font-weight:700; color:#ffffff; letter-spacing:-0.5px; font-family:'Calibri','Calibri Light','Carlito','Helvetica Neue',Arial,sans-serif;">Massa<span style="color:#c084fc;">Pro</span></span>
                   </td>
                 </tr>
               </table>
@@ -169,7 +169,7 @@ export async function POST(request: NextRequest) {
       to: ["finance@massapro.com"],
       subject: `New Demo Request from ${email}`,
       html: `
-        <div style="font-family:sans-serif; background:#0f1129; color:#e2e8f0; padding:32px; border-radius:12px; max-width:500px; margin:0 auto;">
+        <div style="font-family:'Calibri','Calibri Light','Carlito','Helvetica Neue',Arial,sans-serif; background:#0f1129; color:#e2e8f0; padding:32px; border-radius:12px; max-width:500px; margin:0 auto;">
           <h2 style="color:#9333EA; margin-top:0;">New Demo Request</h2>
           <p style="font-size:16px;">A new demo request has been submitted:</p>
           <table style="background:rgba(147,51,234,0.08); border:1px solid rgba(147,51,234,0.15); border-radius:8px; padding:16px; width:100%; margin:16px 0;">

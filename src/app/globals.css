@@ -87,6 +87,11 @@
   }
 }
 
+/* MassaPro brand logo text - Calibri font per brand book */
+.font-brand {
+  font-family: 'Calibri', 'Calibri Light', 'Carlito', 'Helvetica Neue', Arial, sans-serif;
+}
+
 /* Custom scrollbar */
 ::-webkit-scrollbar {
   width: 6px;
