@@ -335,6 +335,14 @@ export default function Home() {
                   alt="MassaPro AI Finance Platform"
                   className="w-full h-auto object-cover"
                 />
+                {/* Brain overlay replacing flower */}
+                <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                  <img
+                    src="/images/brain-reasoning.png"
+                    alt="MassaPro Brain"
+                    className="w-[45%] max-w-[280px] h-auto mix-blend-screen drop-shadow-[0_0_60px_rgba(147,51,234,0.5)]"
+                  />
+                </div>
                 {/* Overlay gradient */}
                 <div className="absolute inset-0 bg-gradient-to-t from-[#030712] via-transparent to-transparent opacity-60" />
 
