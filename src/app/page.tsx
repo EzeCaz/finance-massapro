@@ -85,34 +85,35 @@ function HeroBrainOverlay() {
         <div className="absolute inset-0 bg-gradient-to-t from-[#030712] via-transparent to-transparent opacity-60" />
 
         {/* Brain Floating Metric Overlay - centered */}
-        <motion.div
-          style={{ scale: brainScale, opacity: brainOpacity, y: brainY }}
-          className="absolute inset-0 flex items-center justify-center pointer-events-none"
-        >
+        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none">
           <motion.div
-            animate={{ y: [0, -6, 0] }}
-            transition={{ duration: 5, repeat: Infinity, ease: 'easeInOut' }}
-            className="relative"
+            style={{ scale: brainScale, opacity: brainOpacity, y: brainY }}
           >
-            <img
-              src="/images/brain-hero.png"
-              alt="MassaPro AI Brain"
-              className="w-[45%] sm:w-[40%] lg:w-[45%] h-auto drop-shadow-[0_0_40px_rgba(147,51,234,0.5)]"
-              style={{ mixBlendMode: 'screen' }}
-            />
-            {/* Glow pulse behind brain */}
-            <div className="absolute inset-0 flex items-center justify-center">
-              <motion.div
-                animate={{
-                  scale: [1, 1.15, 1],
-                  opacity: [0.3, 0.6, 0.3]
-                }}
-                transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
-                className="w-[60%] h-[60%] rounded-full bg-purple-500/30 blur-[60px]"
+            <motion.div
+              animate={{ y: [0, -6, 0] }}
+              transition={{ duration: 5, repeat: Infinity, ease: 'easeInOut' }}
+              className="relative"
+            >
+              <img
+                src="/images/brain-hero.png"
+                alt="MassaPro AI Brain"
+                className="w-48 sm:w-56 lg:w-72 h-auto drop-shadow-[0_0_40px_rgba(147,51,234,0.5)]"
+                style={{ mixBlendMode: 'screen' }}
               />
-            </div>
+              {/* Glow pulse behind brain */}
+              <div className="absolute inset-0 flex items-center justify-center">
+                <motion.div
+                  animate={{
+                    scale: [1, 1.15, 1],
+                    opacity: [0.3, 0.6, 0.3]
+                  }}
+                  transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
+                  className="w-[60%] h-[60%] rounded-full bg-purple-500/30 blur-[60px]"
+                />
+              </div>
+            </motion.div>
           </motion.div>
-        </motion.div>
+        </div>
       </div>
 
       {/* Floating card - Conversion Rate */}
