@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
-import { motion, useInView, AnimatePresence } from 'framer-motion'
+import { motion, useInView, AnimatePresence, useScroll, useTransform } from 'framer-motion'
 import {
   Brain, Zap, Users, TrendingUp, Shield, MessageSquare,
   ChevronRight, ArrowRight, Phone, Mail, Globe, Check,
@@ -53,6 +53,102 @@ function Section({ children, className = '', id }: { children: React.ReactNode; 
     >
       {children}
     </motion.section>
+  )
+}
+
+/* ──────────── Hero Brain Overlay Component ──────────── */
+function HeroBrainOverlay() {
+  const containerRef = useRef<HTMLDivElement>(null)
+  const { scrollY } = useScroll()
+  const heroRef = useRef<HTMLDivElement>(null)
+
+  // Palpitate effect: scale pulses based on scroll position
+  const brainScale = useTransform(scrollY, [0, 300, 600, 900, 1200], [1, 1.08, 1, 1.06, 1])
+  const brainOpacity = useTransform(scrollY, [0, 400], [0.9, 0.3])
+  const brainY = useTransform(scrollY, [0, 600], [0, -40])
+
+  return (
+    <motion.div
+      ref={containerRef}
+      initial={{ opacity: 0, scale: 0.95 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{ duration: 0.8, delay: 0.3 }}
+      className="relative"
+    >
+      <div ref={heroRef} className="relative rounded-2xl overflow-hidden glow-purple">
+        <img
+          src="/images/hero.png"
+          alt="MassaPro AI Finance Platform"
+          className="w-full h-auto object-cover"
+        />
+        {/* Overlay gradient */}
+        <div className="absolute inset-0 bg-gradient-to-t from-[#030712] via-transparent to-transparent opacity-60" />
+
+        {/* Brain Floating Metric Overlay - centered */}
+        <motion.div
+          style={{ scale: brainScale, opacity: brainOpacity, y: brainY }}
+          className="absolute inset-0 flex items-center justify-center pointer-events-none"
+        >
+          <motion.div
+            animate={{ y: [0, -6, 0] }}
+            transition={{ duration: 5, repeat: Infinity, ease: 'easeInOut' }}
+            className="relative"
+          >
+            <img
+              src="/images/brain-hero.png"
+              alt="MassaPro AI Brain"
+              className="w-[45%] sm:w-[40%] lg:w-[45%] h-auto drop-shadow-[0_0_40px_rgba(147,51,234,0.5)]"
+              style={{ mixBlendMode: 'screen' }}
+            />
+            {/* Glow pulse behind brain */}
+            <div className="absolute inset-0 flex items-center justify-center">
+              <motion.div
+                animate={{
+                  scale: [1, 1.15, 1],
+                  opacity: [0.3, 0.6, 0.3]
+                }}
+                transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
+                className="w-[60%] h-[60%] rounded-full bg-purple-500/30 blur-[60px]"
+              />
+            </div>
+          </motion.div>
+        </motion.div>
+      </div>
+
+      {/* Floating card - Conversion Rate */}
+      <motion.div
+        animate={{ y: [0, -8, 0] }}
+        transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
+        className="absolute -bottom-4 -left-4 sm:bottom-8 sm:-left-8 glass-card rounded-xl p-4 shadow-2xl"
+      >
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-lg bg-green-500/20 flex items-center justify-center">
+            <TrendingUp className="w-5 h-5 text-green-400" />
+          </div>
+          <div>
+            <div className="text-sm font-semibold text-white">Conversion Rate</div>
+            <div className="text-xs text-green-400">+340% vs human teams</div>
+          </div>
+        </div>
+      </motion.div>
+
+      {/* Floating card - AI Active */}
+      <motion.div
+        animate={{ y: [0, 6, 0] }}
+        transition={{ duration: 5, repeat: Infinity, ease: 'easeInOut', delay: 1 }}
+        className="absolute -top-2 -right-2 sm:top-6 sm:-right-6 glass-card rounded-xl p-4 shadow-2xl"
+      >
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-lg bg-purple-500/20 flex items-center justify-center">
+            <Bot className="w-5 h-5 text-purple-400" />
+          </div>
+          <div>
+            <div className="text-sm font-semibold text-white">AI Active</div>
+            <div className="text-xs text-purple-400">1,247 conversations</div>
+          </div>
+        </div>
+      </motion.div>
+    </motion.div>
   )
 }
 
@@ -337,57 +433,8 @@ export default function Home() {
               </motion.div>
             </div>
 
-            {/* Hero Image */}
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.8, delay: 0.3 }}
-              className="relative"
-            >
-              <div className="relative rounded-2xl overflow-hidden glow-purple">
-                <img
-                  src="/images/hero.png"
-                  alt="MassaPro AI Finance Platform"
-                  className="w-full h-auto object-cover"
-                />
-                {/* Overlay gradient */}
-                <div className="absolute inset-0 bg-gradient-to-t from-[#030712] via-transparent to-transparent opacity-60" />
-
-              </div>
-              {/* Floating card */}
-              <motion.div
-                animate={{ y: [0, -8, 0] }}
-                transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
-                className="absolute -bottom-4 -left-4 sm:bottom-8 sm:-left-8 glass-card rounded-xl p-4 shadow-2xl"
-              >
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-lg bg-green-500/20 flex items-center justify-center">
-                    <TrendingUp className="w-5 h-5 text-green-400" />
-                  </div>
-                  <div>
-                    <div className="text-sm font-semibold text-white">Conversion Rate</div>
-                    <div className="text-xs text-green-400">+340% vs human teams</div>
-                  </div>
-                </div>
-              </motion.div>
-
-              {/* Another floating card */}
-              <motion.div
-                animate={{ y: [0, 6, 0] }}
-                transition={{ duration: 5, repeat: Infinity, ease: 'easeInOut', delay: 1 }}
-                className="absolute -top-2 -right-2 sm:top-6 sm:-right-6 glass-card rounded-xl p-4 shadow-2xl"
-              >
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-lg bg-purple-500/20 flex items-center justify-center">
-                    <Bot className="w-5 h-5 text-purple-400" />
-                  </div>
-                  <div>
-                    <div className="text-sm font-semibold text-white">AI Active</div>
-                    <div className="text-xs text-purple-400">1,247 conversations</div>
-                  </div>
-                </div>
-              </motion.div>
-            </motion.div>
+            {/* Hero Image with Brain Overlay */}
+            <HeroBrainOverlay />
           </div>
         </div>
       </header>
