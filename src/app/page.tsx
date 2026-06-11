@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
-import { motion, useInView, AnimatePresence, useScroll, useTransform } from 'framer-motion'
+import { motion, useInView, AnimatePresence } from 'framer-motion'
 import {
   Brain, Zap, Users, TrendingUp, Shield, MessageSquare,
   ChevronRight, ArrowRight, Phone, Mail, Globe, Check,
@@ -112,8 +112,6 @@ export default function Home() {
   const [activeJourney, setActiveJourney] = useState(0)
   const [formStatus, setFormStatus] = useState<'idle' | 'success'>('idle')
   const [email, setEmail] = useState('')
-  const { scrollY } = useScroll()
-  const brainRotateY = useTransform(scrollY, [0, 1200], [0, 360])
 
   const journeySteps = [
     {
@@ -337,17 +335,8 @@ export default function Home() {
                   alt="MassaPro AI Finance Platform"
                   className="w-full h-auto object-cover"
                 />
-                {/* Brain overlay - rotating on Y axis (right to left) on scroll */}
-                <div className="absolute inset-0 flex items-center justify-center pointer-events-none" style={{ perspective: '1000px' }}>
-                  <motion.img
-                    src="/images/brain-trans.png"
-                    alt="MassaPro Brain"
-                    style={{ rotateY: brainRotateY }}
-                    className="w-[40%] max-w-[260px] h-auto drop-shadow-[0_0_60px_rgba(147,51,234,0.5)]"
-                  />
-                </div>
                 {/* Overlay gradient */}
-                <div className="absolute inset-0 bg-gradient-to-t from-[#030712] via-transparent to-transparent opacity-40" />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#030712] via-transparent to-transparent opacity-60" />
 
               </div>
               {/* Floating card */}
