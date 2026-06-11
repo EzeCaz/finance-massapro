@@ -19,13 +19,28 @@ export const metadata: Metadata = {
   keywords: ["MassaPro", "Agentic AI", "Finance", "AI Secretary", "Trading", "Omni-channel", "Automation"],
   authors: [{ name: "MassaPro" }],
   icons: {
-    icon: "/logo.svg",
+    icon: "/android-chrome-512x512.png",
+    apple: "/apple-touch-icon.png",
   },
   openGraph: {
     title: "MassaPro - Agentic AI for Finance",
     description: "One Brain. Every Channel. Full Journey Automation.",
     siteName: "MassaPro",
     type: "website",
+    images: [
+      {
+        url: "/android-chrome-512x512.png",
+        width: 512,
+        height: 512,
+        alt: "MassaPro Logo",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary",
+    title: "MassaPro - Agentic AI for Finance",
+    description: "One Brain. Every Channel. Full Journey Automation.",
+    images: ["/android-chrome-512x512.png"],
   },
 };
 
@@ -36,6 +51,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
+      <head>
+        <link rel="icon" href="/android-chrome-512x512.png" type="image/png" sizes="512x512" />
+        <link rel="apple-touch-icon" href="/apple-touch-icon.png" sizes="512x512" />
+      </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-background text-foreground`}
       >
