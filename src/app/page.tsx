@@ -110,7 +110,7 @@ function PricingRow({ feature, traditional, massapro }: { feature: string; tradi
 export default function Home() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [activeJourney, setActiveJourney] = useState(0)
-  const [formStatus, setFormStatus] = useState<'idle' | 'success'>('idle')
+  const [formStatus, setFormStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle')
   const [email, setEmail] = useState('')
 
   const journeySteps = [
@@ -152,12 +152,27 @@ export default function Home() {
     { label: 'Security', href: '#security' },
   ]
 
-  const handleDemoSubmit = (e: React.FormEvent) => {
+  const handleDemoSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (email) {
-      setFormStatus('success')
-      setEmail('')
-      setTimeout(() => setFormStatus('idle'), 4000)
+    if (!email) return
+    setFormStatus('loading')
+    try {
+      const res = await fetch('/api/demo', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      })
+      if (res.ok) {
+        setFormStatus('success')
+        setEmail('')
+        setTimeout(() => setFormStatus('idle'), 5000)
+      } else {
+        setFormStatus('error')
+        setTimeout(() => setFormStatus('idle'), 3000)
+      }
+    } catch {
+      setFormStatus('error')
+      setTimeout(() => setFormStatus('idle'), 3000)
     }
   }
 
@@ -954,14 +969,18 @@ export default function Home() {
                     </div>
                     <Button
                       type="submit"
-                      className="w-full py-3.5 text-base font-semibold rounded-xl bg-purple-600 hover:bg-purple-500 text-white shadow-lg shadow-purple-500/25 hover:shadow-purple-500/40 transition-all"
+                      disabled={formStatus === 'loading'}
+                      className="w-full py-3.5 text-base font-semibold rounded-xl bg-purple-600 hover:bg-purple-500 text-white shadow-lg shadow-purple-500/25 hover:shadow-purple-500/40 transition-all disabled:opacity-60 disabled:cursor-not-allowed"
                     >
-                      Book Your Demo
+                      {formStatus === 'loading' ? 'Sending...' : 'Book Your Demo'}
                       <ArrowRight className="w-5 h-5 ml-2" />
                     </Button>
                     <p className="text-xs text-slate-600 text-center">
                       No credit card required. Free consultation included.
                     </p>
+                    {formStatus === 'error' && (
+                      <p className="text-xs text-red-400 text-center mt-2">Something went wrong. Please try again.</p>
+                    )}
                   </form>
                 )}
               </CardContent>
