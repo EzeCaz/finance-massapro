@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
-import { motion, useInView, AnimatePresence, useScroll, useTransform } from 'framer-motion'
+import { motion, useInView, AnimatePresence } from 'framer-motion'
 import {
   Brain, Zap, Users, TrendingUp, Shield, MessageSquare,
   ChevronRight, ArrowRight, Phone, Mail, Globe, Check,
@@ -112,8 +112,6 @@ export default function Home() {
   const [activeJourney, setActiveJourney] = useState(0)
   const [formStatus, setFormStatus] = useState<'idle' | 'success'>('idle')
   const [email, setEmail] = useState('')
-  const { scrollY } = useScroll()
-  const brainRotate = useTransform(scrollY, [0, 1200], [0, 360])
 
   const journeySteps = [
     {
@@ -339,10 +337,9 @@ export default function Home() {
                 />
                 {/* Brain overlay replacing flower */}
                 <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                  <motion.img
+                  <img
                     src="/images/brain-reasoning.png"
                     alt="MassaPro Brain"
-                    style={{ rotate: brainRotate }}
                     className="w-[45%] max-w-[280px] h-auto mix-blend-screen drop-shadow-[0_0_60px_rgba(147,51,234,0.5)]"
                   />
                 </div>
