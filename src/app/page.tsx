@@ -94,23 +94,25 @@ function HeroBrainOverlay() {
               transition={{ duration: 5, repeat: Infinity, ease: 'easeInOut' }}
               className="relative"
             >
-              <img
-                src="/images/brain-hero.png"
-                alt="MassaPro AI Brain"
-                className="w-48 sm:w-56 lg:w-72 h-auto drop-shadow-[0_0_40px_rgba(147,51,234,0.5)]"
-                style={{ mixBlendMode: 'screen' }}
-              />
-              {/* Glow pulse behind brain */}
-              <div className="absolute inset-0 flex items-center justify-center">
+              {/* Glow pulse behind brain - rendered first so it's behind */}
+              <div className="absolute inset-0 flex items-center justify-center z-0">
                 <motion.div
                   animate={{
                     scale: [1, 1.15, 1],
-                    opacity: [0.3, 0.6, 0.3]
+                    opacity: [0.4, 0.7, 0.4]
                   }}
                   transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
-                  className="w-[60%] h-[60%] rounded-full bg-purple-500/30 blur-[60px]"
+                  className="w-[80%] h-[80%] rounded-full bg-purple-500/40 blur-[50px]"
                 />
               </div>
+              <img
+                src="/images/brain-hero.png"
+                alt="MassaPro AI Brain"
+                className="w-48 sm:w-56 lg:w-72 h-auto relative z-10"
+                style={{
+                  filter: 'drop-shadow(0 0 25px rgba(147,51,234,0.6)) drop-shadow(0 0 60px rgba(147,51,234,0.3)) brightness(1.1)',
+                }}
+              />
             </motion.div>
           </motion.div>
         </div>
