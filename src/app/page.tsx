@@ -119,7 +119,7 @@ export default function Home() {
       title: 'Lead Generation',
       desc: 'AI agents prospect 24/7 across social, search, and referral networks. Context-aware outreach identifies high-intent traders before competitors, triggering personalized first-touch sequences that convert cold traffic into qualified pipeline.',
       icon: <Target className="w-5 h-5 text-white" />,
-      image: '/images/agentic-journey.png'
+      image: '/images/lead-generation.png'
     },
     {
       step: '02',

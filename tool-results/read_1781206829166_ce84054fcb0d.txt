@@ -1,0 +1,1037 @@
+     1→'use client'
+     2→
+     3→import { useState, useEffect, useRef } from 'react'
+     4→import { motion, useInView, AnimatePresence } from 'framer-motion'
+     5→import {
+     6→  Brain, Zap, Users, TrendingUp, Shield, MessageSquare,
+     7→  ChevronRight, ArrowRight, Phone, Mail, Globe, Check,
+     8→  Sparkles, Bot, BarChart3, Clock, Headphones, Target,
+     9→  Menu, X, Play, Star
+    10→} from 'lucide-react'
+    11→import { Button } from '@/components/ui/button'
+    12→import { Card, CardContent } from '@/components/ui/card'
+    13→import { Badge } from '@/components/ui/badge'
+    14→
+    15→/* ──────────── Animated Counter ──────────── */
+    16→function AnimatedCounter({ end, suffix = '', prefix = '', duration = 2000 }: { end: number; suffix?: string; prefix?: string; duration?: number }) {
+    17→  const [count, setCount] = useState(0)
+    18→  const ref = useRef<HTMLSpanElement>(null)
+    19→  const inView = useInView(ref, { once: true, margin: '-50px' })
+    20→
+    21→  useEffect(() => {
+    22→    if (!inView) return
+    23→    let start = 0
+    24→    const step = end / (duration / 16)
+    25→    const timer = setInterval(() => {
+    26→      start += step
+    27→      if (start >= end) {
+    28→        setCount(end)
+    29→        clearInterval(timer)
+    30→      } else {
+    31→        setCount(Math.floor(start))
+    32→      }
+    33→    }, 16)
+    34→    return () => clearInterval(timer)
+    35→  }, [inView, end, duration])
+    36→
+    37→  return <span ref={ref}>{prefix}{count}{suffix}</span>
+    38→}
+    39→
+    40→/* ──────────── Section Wrapper with InView ──────────── */
+    41→function Section({ children, className = '', id }: { children: React.ReactNode; className?: string; id?: string }) {
+    42→  const ref = useRef<HTMLElement>(null)
+    43→  const inView = useInView(ref, { once: true, margin: '-80px' })
+    44→
+    45→  return (
+    46→    <motion.section
+    47→      id={id}
+    48→      ref={ref}
+    49→      initial={{ opacity: 0, y: 40 }}
+    50→      animate={inView ? { opacity: 1, y: 0 } : {}}
+    51→      transition={{ duration: 0.7, ease: 'easeOut' }}
+    52→      className={className}
+    53→    >
+    54→      {children}
+    55→    </motion.section>
+    56→  )
+    57→}
+    58→
+    59→/* ──────────── Journey Step Component ──────────── */
+    60→function JourneyStep({ step, title, desc, icon, isActive, onClick, index }: {
+    61→  step: string; title: string; desc: string; icon: React.ReactNode; isActive: boolean; onClick: () => void; index: number
+    62→}) {
+    63→  return (
+    64→    <motion.button
+    65→      onClick={onClick}
+    66→      initial={{ opacity: 0, x: -30 }}
+    67→      animate={{ opacity: 1, x: 0 }}
+    68→      transition={{ delay: index * 0.1, duration: 0.5 }}
+    69→      className={`w-full text-left p-5 rounded-2xl transition-all duration-500 cursor-pointer group ${
+    70→        isActive
+    71→          ? 'glass-card glow-purple-sm border-purple-500/30'
+    72→          : 'hover:bg-white/[0.02] border border-transparent hover:border-purple-500/10'
+    73→      }`}
+    74→    >
+    75→      <div className="flex items-start gap-4">
+    76→        <div className={`shrink-0 w-12 h-12 rounded-xl flex items-center justify-center transition-all duration-500 ${
+    77→          isActive ? 'bg-purple-600 shadow-lg shadow-purple-500/30' : 'bg-white/5 group-hover:bg-white/10'
+    78→        }`}>
+    79→          {icon}
+    80→        </div>
+    81→        <div className="flex-1 min-w-0">
+    82→          <div className="flex items-center gap-3 mb-1">
+    83→            <span className="text-xs font-mono text-purple-400 tracking-wider">{step}</span>
+    84→          </div>
+    85→          <h3 className={`font-semibold text-lg mb-1 transition-colors ${isActive ? 'text-white' : 'text-slate-300 group-hover:text-white'}`}>
+    86→            {title}
+    87→          </h3>
+    88→          <p className={`text-sm leading-relaxed transition-colors ${isActive ? 'text-slate-300' : 'text-slate-500 group-hover:text-slate-400'}`}>
+    89→            {desc}
+    90→          </p>
+    91→        </div>
+    92→        <ChevronRight className={`w-5 h-5 shrink-0 mt-3 transition-all duration-300 ${isActive ? 'text-purple-400 translate-x-0' : 'text-slate-600 -translate-x-2 opacity-0 group-hover:opacity-100 group-hover:translate-x-0'}`} />
+    93→      </div>
+    94→    </motion.button>
+    95→  )
+    96→}
+    97→
+    98→/* ──────────── Pricing Comparison Row ──────────── */
+    99→function PricingRow({ feature, traditional, massapro }: { feature: string; traditional: React.ReactNode; massapro: React.ReactNode }) {
+   100→  return (
+   101→    <tr className="border-b border-white/5">
+   102→      <td className="py-4 pr-4 text-sm text-slate-400">{feature}</td>
+   103→      <td className="py-4 px-4 text-sm text-slate-500 text-center">{traditional}</td>
+   104→      <td className="py-4 pl-4 text-sm text-purple-300 text-center font-medium">{massapro}</td>
+   105→    </tr>
+   106→  )
+   107→}
+   108→
+   109→/* ──────────── Main Page ──────────── */
+   110→export default function Home() {
+   111→  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+   112→  const [activeJourney, setActiveJourney] = useState(0)
+   113→  const [formStatus, setFormStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle')
+   114→  const [email, setEmail] = useState('')
+   115→
+   116→  const journeySteps = [
+   117→    {
+   118→      step: '01',
+   119→      title: 'Lead Generation',
+   120→      desc: 'AI agents prospect 24/7 across social, search, and referral networks. Context-aware outreach identifies high-intent traders before competitors, triggering personalized first-touch sequences that convert cold traffic into qualified pipeline.',
+   121→      icon: <Target className="w-5 h-5 text-white" />,
+   122→      image: '/images/agentic-journey.png'
+   123→    },
+   124→    {
+   125→      step: '02',
+   126→      title: 'Conversion & Closing',
+   127→      desc: 'Our proprietary LLM handles real-time objections with financial-fluent precision. AI voice agents close deposits via natural phone conversations — no scripts, no hold times. Conversion rates that human-only teams simply cannot sustain.',
+   128→      icon: <Zap className="w-5 h-5 text-white" />,
+   129→      image: '/images/conversion.png'
+   130→    },
+   131→    {
+   132→      step: '03',
+   133→      title: 'AI Guru Support',
+   134→      desc: 'The AI Guru resolves 85%+ of support tickets instantly — account issues, deposit queries, platform navigation — without a human agent. Complex cases escalate seamlessly with full context preserved across every channel.',
+   135→      icon: <Headphones className="w-5 h-5 text-white" />,
+   136→      image: '/images/satisfaction.png'
+   137→    },
+   138→    {
+   139→      step: '04',
+   140→      title: 'Retention & Growth',
+   141→      desc: 'Every interaction feeds the agentic brain. Personalized re-engagement, proactive outreach, and intelligent upsell recommendations drive lifetime value higher while your overhead stays flat.',
+   142→      icon: <TrendingUp className="w-5 h-5 text-white" />,
+   143→      image: '/images/efficiency.png'
+   144→    }
+   145→  ]
+   146→
+   147→  const navLinks = [
+   148→    { label: 'Platform', href: '#platform' },
+   149→    { label: 'Journey', href: '#journey' },
+   150→    { label: 'Efficiency', href: '#efficiency' },
+   151→    { label: 'Pricing', href: '#pricing' },
+   152→    { label: 'Security', href: '#security' },
+   153→  ]
+   154→
+   155→  const handleDemoSubmit = async (e: React.FormEvent) => {
+   156→    e.preventDefault()
+   157→    if (!email) return
+   158→    setFormStatus('loading')
+   159→    try {
+   160→      const res = await fetch('/api/demo', {
+   161→        method: 'POST',
+   162→        headers: { 'Content-Type': 'application/json' },
+   163→        body: JSON.stringify({ email }),
+   164→      })
+   165→      if (res.ok) {
+   166→        setFormStatus('success')
+   167→        setEmail('')
+   168→        setTimeout(() => setFormStatus('idle'), 5000)
+   169→      } else {
+   170→        setFormStatus('error')
+   171→        setTimeout(() => setFormStatus('idle'), 3000)
+   172→      }
+   173→    } catch {
+   174→      setFormStatus('error')
+   175→      setTimeout(() => setFormStatus('idle'), 3000)
+   176→    }
+   177→  }
+   178→
+   179→  return (
+   180→    <div className="min-h-screen flex flex-col bg-[#030712]">
+   181→      {/* ═══════════ NAVIGATION ═══════════ */}
+   182→      <nav className="fixed top-0 left-0 right-0 z-50 glass border-b border-purple-500/10">
+   183→        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+   184→          <div className="flex items-center justify-between h-16 sm:h-20">
+   185→            {/* Logo */}
+   186→            <a href="#" className="flex items-center gap-3 group">
+   187→              <img src="/images/massapro-logo.png" alt="MassaPro Logo" className="w-9 h-9 rounded-lg shadow-lg shadow-purple-500/20 group-hover:shadow-purple-500/40 transition-shadow object-contain" />
+   188→              <span className="text-xl font-bold tracking-tight">
+   189→                Massa<span className="gradient-text">Pro</span>
+   190→              </span>
+   191→            </a>
+   192→
+   193→            {/* Desktop Nav */}
+   194→            <div className="hidden md:flex items-center gap-1">
+   195→              {navLinks.map(link => (
+   196→                <a
+   197→                  key={link.href}
+   198→                  href={link.href}
+   199→                  className="px-4 py-2 text-sm text-slate-400 hover:text-white rounded-lg hover:bg-white/5 transition-all"
+   200→                >
+   201→                  {link.label}
+   202→                </a>
+   203→              ))}
+   204→            </div>
+   205→
+   206→            {/* CTA */}
+   207→            <div className="hidden md:flex items-center gap-3">
+   208→              <a href="#cta" className="px-5 py-2.5 text-sm font-semibold rounded-xl bg-purple-600 hover:bg-purple-500 text-white transition-all shadow-lg shadow-purple-500/20 hover:shadow-purple-500/40 hover:scale-[1.02] active:scale-[0.98]">
+   209→                Get Started
+   210→              </a>
+   211→            </div>
+   212→
+   213→            {/* Mobile menu button */}
+   214→            <button
+   215→              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+   216→              className="md:hidden p-2 text-slate-400 hover:text-white"
+   217→            >
+   218→              {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+   219→            </button>
+   220→          </div>
+   221→        </div>
+   222→
+   223→        {/* Mobile menu */}
+   224→        <AnimatePresence>
+   225→          {mobileMenuOpen && (
+   226→            <motion.div
+   227→              initial={{ opacity: 0, height: 0 }}
+   228→              animate={{ opacity: 1, height: 'auto' }}
+   229→              exit={{ opacity: 0, height: 0 }}
+   230→              className="md:hidden glass border-t border-purple-500/10 overflow-hidden"
+   231→            >
+   232→              <div className="px-4 py-4 space-y-1">
+   233→                {navLinks.map(link => (
+   234→                  <a
+   235→                    key={link.href}
+   236→                    href={link.href}
+   237→                    onClick={() => setMobileMenuOpen(false)}
+   238→                    className="block px-4 py-3 text-slate-400 hover:text-white rounded-lg hover:bg-white/5 transition-all"
+   239→                  >
+   240→                    {link.label}
+   241→                  </a>
+   242→                ))}
+   243→                <a href="#cta" className="block px-4 py-3 mt-2 text-center font-semibold rounded-xl bg-purple-600 text-white">
+   244→                  Get Started
+   245→                </a>
+   246→              </div>
+   247→            </motion.div>
+   248→          )}
+   249→        </AnimatePresence>
+   250→      </nav>
+   251→
+   252→      {/* ═══════════ HERO ═══════════ */}
+   253→      <header className="relative pt-24 sm:pt-32 pb-16 sm:pb-24 overflow-hidden">
+   254→        {/* Background effects */}
+   255→        <div className="absolute inset-0 bg-grid-pattern" />
+   256→        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[600px] bg-radial-glow pointer-events-none" />
+   257→        <div className="absolute top-20 left-10 w-72 h-72 bg-purple-600/10 rounded-full blur-[120px] pointer-events-none" />
+   258→        <div className="absolute bottom-0 right-10 w-96 h-96 bg-purple-500/5 rounded-full blur-[150px] pointer-events-none" />
+   259→
+   260→        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+   261→          <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+   262→            {/* Text */}
+   263→            <div>
+   264→              <motion.div
+   265→                initial={{ opacity: 0, y: 20 }}
+   266→                animate={{ opacity: 1, y: 0 }}
+   267→                transition={{ duration: 0.6 }}
+   268→              >
+   269→                <Badge variant="outline" className="mb-6 px-4 py-1.5 text-xs font-medium tracking-widest text-purple-300 border-purple-500/30 bg-purple-500/10">
+   270→                  AGENTIC AI REVOLUTION
+   271→                </Badge>
+   272→              </motion.div>
+   273→
+   274→              <motion.h1
+   275→                initial={{ opacity: 0, y: 20 }}
+   276→                animate={{ opacity: 1, y: 0 }}
+   277→                transition={{ duration: 0.6, delay: 0.1 }}
+   278→                className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight leading-[1.1] mb-6"
+   279→              >
+   280→                One Brain.<br />
+   281→                Every Channel.<br />
+   282→                <span className="gradient-text">Financial Guru.</span>
+   283→              </motion.h1>
+   284→
+   285→              <motion.p
+   286→                initial={{ opacity: 0, y: 20 }}
+   287→                animate={{ opacity: 1, y: 0 }}
+   288→                transition={{ duration: 0.6, delay: 0.2 }}
+   289→                className="text-lg sm:text-xl text-slate-400 leading-relaxed mb-8 max-w-lg"
+   290→              >
+   291→                Full Journey Automation. MassaPro deploys a single intelligent agentic solution that manages the entire trader lifecycle — from first click to funded account — across every channel, priced by full conversations, not minutes.
+   292→              </motion.p>
+   293→
+   294→              <motion.div
+   295→                initial={{ opacity: 0, y: 20 }}
+   296→                animate={{ opacity: 1, y: 0 }}
+   297→                transition={{ duration: 0.6, delay: 0.3 }}
+   298→                className="flex flex-col sm:flex-row gap-4"
+   299→              >
+   300→                <a href="#cta" className="inline-flex items-center justify-center gap-2 px-7 py-3.5 text-base font-semibold rounded-xl bg-purple-600 hover:bg-purple-500 text-white transition-all shadow-xl shadow-purple-500/25 hover:shadow-purple-500/40 hover:scale-[1.02] active:scale-[0.98]">
+   301→                  Book a Demo
+   302→                  <ArrowRight className="w-5 h-5" />
+   303→                </a>
+   304→                <a href="#platform" className="inline-flex items-center justify-center gap-2 px-7 py-3.5 text-base font-medium rounded-xl border border-purple-500/20 text-slate-300 hover:text-white hover:border-purple-500/40 hover:bg-white/5 transition-all">
+   305→                  <Play className="w-5 h-5" />
+   306→                  See How It Works
+   307→                </a>
+   308→              </motion.div>
+   309→
+   310→              {/* Stats row */}
+   311→              <motion.div
+   312→                initial={{ opacity: 0 }}
+   313→                animate={{ opacity: 1 }}
+   314→                transition={{ duration: 0.6, delay: 0.5 }}
+   315→                className="mt-12 flex items-center gap-8 sm:gap-12"
+   316→              >
+   317→                <div>
+   318→                  <div className="text-2xl sm:text-3xl font-bold gradient-text">
+   319→                    <AnimatedCounter end={85} suffix="%" />
+   320→                  </div>
+   321→                  <div className="text-xs text-slate-500 mt-1">Auto-Resolved</div>
+   322→                </div>
+   323→                <div className="w-px h-10 bg-purple-500/20" />
+   324→                <div>
+   325→                  <div className="text-2xl sm:text-3xl font-bold gradient-text">
+   326→                    24/7
+   327→                  </div>
+   328→                  <div className="text-xs text-slate-500 mt-1">Always On</div>
+   329→                </div>
+   330→                <div className="w-px h-10 bg-purple-500/20" />
+   331→                <div>
+   332→                  <div className="text-2xl sm:text-3xl font-bold gradient-text">
+   333→                    &lt;5s
+   334→                  </div>
+   335→                  <div className="text-xs text-slate-500 mt-1">Response Time</div>
+   336→                </div>
+   337→              </motion.div>
+   338→            </div>
+   339→
+   340→            {/* Hero Image */}
+   341→            <motion.div
+   342→              initial={{ opacity: 0, scale: 0.95 }}
+   343→              animate={{ opacity: 1, scale: 1 }}
+   344→              transition={{ duration: 0.8, delay: 0.3 }}
+   345→              className="relative"
+   346→            >
+   347→              <div className="relative rounded-2xl overflow-hidden glow-purple">
+   348→                <img
+   349→                  src="/images/hero.png"
+   350→                  alt="MassaPro AI Finance Platform"
+   351→                  className="w-full h-auto object-cover"
+   352→                />
+   353→                {/* Overlay gradient */}
+   354→                <div className="absolute inset-0 bg-gradient-to-t from-[#030712] via-transparent to-transparent opacity-60" />
+   355→
+   356→              </div>
+   357→              {/* Floating card */}
+   358→              <motion.div
+   359→                animate={{ y: [0, -8, 0] }}
+   360→                transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
+   361→                className="absolute -bottom-4 -left-4 sm:bottom-8 sm:-left-8 glass-card rounded-xl p-4 shadow-2xl"
+   362→              >
+   363→                <div className="flex items-center gap-3">
+   364→                  <div className="w-10 h-10 rounded-lg bg-green-500/20 flex items-center justify-center">
+   365→                    <TrendingUp className="w-5 h-5 text-green-400" />
+   366→                  </div>
+   367→                  <div>
+   368→                    <div className="text-sm font-semibold text-white">Conversion Rate</div>
+   369→                    <div className="text-xs text-green-400">+340% vs human teams</div>
+   370→                  </div>
+   371→                </div>
+   372→              </motion.div>
+   373→
+   374→              {/* Another floating card */}
+   375→              <motion.div
+   376→                animate={{ y: [0, 6, 0] }}
+   377→                transition={{ duration: 5, repeat: Infinity, ease: 'easeInOut', delay: 1 }}
+   378→                className="absolute -top-2 -right-2 sm:top-6 sm:-right-6 glass-card rounded-xl p-4 shadow-2xl"
+   379→              >
+   380→                <div className="flex items-center gap-3">
+   381→                  <div className="w-10 h-10 rounded-lg bg-purple-500/20 flex items-center justify-center">
+   382→                    <Bot className="w-5 h-5 text-purple-400" />
+   383→                  </div>
+   384→                  <div>
+   385→                    <div className="text-sm font-semibold text-white">AI Active</div>
+   386→                    <div className="text-xs text-purple-400">1,247 conversations</div>
+   387→                  </div>
+   388→                </div>
+   389→              </motion.div>
+   390→            </motion.div>
+   391→          </div>
+   392→        </div>
+   393→      </header>
+   394→
+   395→      {/* ═══════════ LOGOS / TRUST BAR ═══════════ */}
+   396→      <Section className="py-12 border-y border-purple-500/5">
+   397→        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+   398→          <div className="flex flex-col sm:flex-row items-center justify-center gap-8 sm:gap-16 text-slate-600">
+   399→            <span className="text-xs tracking-widest uppercase">Trusted by leading platforms</span>
+   400→            <div className="flex items-center gap-10 sm:gap-16 text-slate-500">
+   401→              {['BROKERAGE', 'DEFI EXCHANGE', 'HEDGE FUND', 'PAYMENT GATEWAY'].map(name => (
+   402→                <span key={name} className="text-xs font-semibold tracking-wider opacity-50 hover:opacity-100 transition-opacity">{name}</span>
+   403→              ))}
+   404→            </div>
+   405→          </div>
+   406→        </div>
+   407→      </Section>
+   408→
+   409→      {/* ═══════════ PLATFORM OVERVIEW ═══════════ */}
+   410→      <Section id="platform" className="py-20 sm:py-28">
+   411→        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+   412→          <div className="text-center max-w-3xl mx-auto mb-16">
+   413→            <Badge variant="outline" className="mb-4 px-4 py-1.5 text-xs font-medium tracking-widest text-purple-300 border-purple-500/30 bg-purple-500/10">
+   414→              THE PLATFORM
+   415→            </Badge>
+   416→            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight mb-6">
+   417→              Agentic Native.<br /><span className="gradient-text">Omni-Channel Platform.</span>
+   418→            </h2>
+   419→            <p className="text-lg text-slate-400 leading-relaxed">
+   420→              A single Agentic AI orchestrates the entire trader journey. Instead of fragmented tools, one intelligent agent learns, adapts, and evolves with every interaction — delivering continuity that traditional CRM stacks cannot match.
+   421→            </p>
+   422→          </div>
+   423→
+   424→          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+   425→            {[
+   426→              {
+   427→                icon: <Brain className="w-6 h-6" />,
+   428→                title: '"One Brain" Philosophy',
+   429→                desc: 'A single Agentic AI learns, adapts, and evolves with every interaction — delivering continuity that traditional CRM stacks cannot match.',
+   430→                color: 'from-purple-600 to-purple-400'
+   431→              },
+   432→              {
+   433→                icon: <Globe className="w-6 h-6" />,
+   434→                title: 'Omni-Channel Reach',
+   435→                desc: 'Every channel. One conversation. Traders start on WhatsApp, continue on email, close on a voice call — the agent remembers every word. Zero context loss.',
+   436→                color: 'from-purple-500 to-violet-400'
+   437→              },
+   438→              {
+   439→                icon: <MessageSquare className="w-6 h-6" />,
+   440→                title: 'Pay for Conversations',
+   441→                desc: 'Traditional platforms charge per call minute. MassaPro charges per entire flow conversation — whether it spans one email or ten touchpoints across channels.',
+   442→                color: 'from-violet-500 to-fuchsia-400'
+   443→              },
+   444→              {
+   445→                icon: <Zap className="w-6 h-6" />,
+   446→                title: 'Proprietary LLM & Voice',
+   447→                desc: 'Our proprietary LLM handles real-time objections with financial-fluent precision. AI voice agents close deposits via natural phone conversations — no scripts, no hold times.',
+   448→                color: 'from-fuchsia-500 to-pink-400'
+   449→              },
+   450→              {
+   451→                icon: <Users className="w-6 h-6" />,
+   452→                title: 'AI Guru Support',
+   453→                desc: 'Resolves 85%+ of support tickets instantly — account issues, deposit queries, platform navigation — without a human agent. Complex cases escalate seamlessly.',
+   454→                color: 'from-pink-500 to-rose-400'
+   455→              },
+   456→              {
+   457→                icon: <BarChart3 className="w-6 h-6" />,
+   458→                title: 'Scale Without Overhead',
+   459→                desc: "MassaPro's Agentic AI handles thousands of concurrent trader conversations without adding headcount. Every workflow is automated, measured, and optimized.",
+   460→                color: 'from-rose-500 to-orange-400'
+   461→              }
+   462→            ].map((feature, i) => (
+   463→              <motion.div
+   464→                key={feature.title}
+   465→                initial={{ opacity: 0, y: 30 }}
+   466→                whileInView={{ opacity: 1, y: 0 }}
+   467→                viewport={{ once: true }}
+   468→                transition={{ delay: i * 0.1, duration: 0.5 }}
+   469→              >
+   470→                <Card className="h-full glass-card hover:border-purple-500/25 transition-all duration-500 group hover:shadow-lg hover:shadow-purple-500/5">
+   471→                  <CardContent className="p-6 sm:p-7">
+   472→                    <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${feature.color} flex items-center justify-center mb-5 text-white shadow-lg group-hover:scale-110 transition-transform duration-300`}>
+   473→                      {feature.icon}
+   474→                    </div>
+   475→                    <h3 className="text-lg font-semibold mb-3 text-white group-hover:text-purple-200 transition-colors">{feature.title}</h3>
+   476→                    <p className="text-sm text-slate-400 leading-relaxed">{feature.desc}</p>
+   477→                  </CardContent>
+   478→                </Card>
+   479→              </motion.div>
+   480→            ))}
+   481→          </div>
+   482→        </div>
+   483→      </Section>
+   484→
+   485→      <div className="section-divider max-w-7xl mx-auto" />
+   486→
+   487→      {/* ═══════════ AGENTIC JOURNEY ═══════════ */}
+   488→      <Section id="journey" className="py-20 sm:py-28">
+   489→        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+   490→          <div className="text-center max-w-3xl mx-auto mb-16">
+   491→            <Badge variant="outline" className="mb-4 px-4 py-1.5 text-xs font-medium tracking-widest text-purple-300 border-purple-500/30 bg-purple-500/10">
+   492→              THE AGENTIC JOURNEY
+   493→            </Badge>
+   494→            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight mb-6">
+   495→              From First Click to<br /><span className="gradient-text">Funded Account</span>
+   496→            </h2>
+   497→            <p className="text-lg text-slate-400 leading-relaxed">
+   498→              Follow the complete trader lifecycle powered by a single intelligent agent that never forgets, never sleeps, and never lets a lead go cold.
+   499→            </p>
+   500→          </div>
+   501→
+   502→          <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-start">
+   503→            {/* Steps list */}
+   504→            <div className="space-y-3">
+   505→              {journeySteps.map((step, i) => (
+   506→                <JourneyStep
+   507→                  key={step.step}
+   508→                  step={step.step}
+   509→                  title={step.title}
+   510→                  desc={step.desc}
+   511→                  icon={step.icon}
+   512→                  isActive={activeJourney === i}
+   513→                  onClick={() => setActiveJourney(i)}
+   514→                  index={i}
+   515→                />
+   516→              ))}
+   517→            </div>
+   518→
+   519→            {/* Image display */}
+   520→            <div className="relative lg:sticky lg:top-28">
+   521→              <AnimatePresence mode="wait">
+   522→                <motion.div
+   523→                  key={activeJourney}
+   524→                  initial={{ opacity: 0, scale: 0.97 }}
+   525→                  animate={{ opacity: 1, scale: 1 }}
+   526→                  exit={{ opacity: 0, scale: 0.97 }}
+   527→                  transition={{ duration: 0.4 }}
+   528→                  className="relative rounded-2xl overflow-hidden glow-purple-sm"
+   529→                >
+   530→                  <img
+   531→                    src={journeySteps[activeJourney].image}
+   532→                    alt={journeySteps[activeJourney].title}
+   533→                    className="w-full h-[300px] sm:h-[400px] lg:h-[460px] object-cover"
+   534→                  />
+   535→                  <div className="absolute inset-0 bg-gradient-to-t from-[#030712] via-[#030712]/20 to-transparent" />
+   536→                  <div className="absolute bottom-0 left-0 right-0 p-6">
+   537→                    <div className="flex items-center gap-2 mb-2">
+   538→                      <div className="w-2 h-2 rounded-full bg-purple-400 animate-pulse" />
+   539→                      <span className="text-xs text-purple-300 font-medium tracking-wider">STEP {journeySteps[activeJourney].step}</span>
+   540→                    </div>
+   541→                    <h3 className="text-xl font-bold text-white">{journeySteps[activeJourney].title}</h3>
+   542→                  </div>
+   543→                </motion.div>
+   544→              </AnimatePresence>
+   545→
+   546→              {/* Connection lines */}
+   547→              <div className="hidden lg:block absolute -left-6 top-1/2 w-6 h-px bg-gradient-to-r from-purple-500/30 to-transparent" />
+   548→            </div>
+   549→          </div>
+   550→        </div>
+   551→      </Section>
+   552→
+   553→      <div className="section-divider max-w-7xl mx-auto" />
+   554→
+   555→      {/* ═══════════ INCREASE EFFICIENCY ═══════════ */}
+   556→      <Section id="efficiency" className="py-20 sm:py-28">
+   557→        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+   558→          <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+   559→            <div className="relative">
+   560→              <motion.div
+   561→                whileHover={{ scale: 1.02 }}
+   562→                transition={{ duration: 0.3 }}
+   563→                className="relative rounded-2xl overflow-hidden glow-purple-sm"
+   564→              >
+   565→                <img
+   566→                  src="/images/efficiency.png"
+   567→                  alt="Increase Efficiency with MassaPro"
+   568→                  className="w-full h-auto object-cover"
+   569→                />
+   570→                <div className="absolute inset-0 bg-gradient-to-r from-[#030712] via-transparent to-transparent opacity-40" />
+   571→              </motion.div>
+   572→            </div>
+   573→
+   574→            <div>
+   575→              <Badge variant="outline" className="mb-4 px-4 py-1.5 text-xs font-medium tracking-widest text-purple-300 border-purple-500/30 bg-purple-500/10">
+   576→                INCREASE EFFICIENCY
+   577→              </Badge>
+   578→              <h2 className="text-3xl sm:text-4xl font-bold tracking-tight mb-6">
+   579→                Satisfaction on Demand.<br /><span className="gradient-text">Without Headcount Increase.</span>
+   580→              </h2>
+   581→              <p className="text-lg text-slate-400 leading-relaxed mb-8">
+   582→                MassaPro handles thousands of concurrent trader conversations without adding headcount. From onboarding to retention, every workflow is automated, measured, and optimized. Deploy once, scale infinitely — your margins grow as your volume does.
+   583→              </p>
+   584→
+   585→              <div className="grid grid-cols-2 gap-4 mb-8">
+   586→                {[
+   587→                  { value: '85%+', label: 'Tickets Auto-Resolved', icon: <Sparkles className="w-4 h-4" /> },
+   588→                  { value: '24/7', label: 'Always Available', icon: <Clock className="w-4 h-4" /> },
+   589→                  { value: '<5s', label: 'First Response', icon: <Zap className="w-4 h-4" /> },
+   590→                  { value: '0', label: 'Extra Headcount Needed', icon: <Users className="w-4 h-4" /> }
+   591→                ].map(stat => (
+   592→                  <div key={stat.label} className="glass-card rounded-xl p-4 group hover:border-purple-500/20 transition-all">
+   593→                    <div className="flex items-center gap-2 mb-2">
+   594→                      <div className="text-purple-400">{stat.icon}</div>
+   595→                      <span className="text-2xl font-bold gradient-text">{stat.value}</span>
+   596→                    </div>
+   597→                    <span className="text-xs text-slate-500">{stat.label}</span>
+   598→                  </div>
+   599→                ))}
+   600→              </div>
+   601→
+   602→              <a href="#cta" className="inline-flex items-center gap-2 text-purple-400 hover:text-purple-300 font-medium transition-colors group">
+   603→                See how efficiency scales
+   604→                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+   605→              </a>
+   606→            </div>
+   607→          </div>
+   608→        </div>
+   609→      </Section>
+   610→
+   611→      <div className="section-divider max-w-7xl mx-auto" />
+   612→
+   613→      {/* ═══════════ OMNI-CHANNEL ═══════════ */}
+   614→      <Section className="py-20 sm:py-28">
+   615→        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+   616→          <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+   617→            <div className="order-2 lg:order-1">
+   618→              <Badge variant="outline" className="mb-4 px-4 py-1.5 text-xs font-medium tracking-widest text-purple-300 border-purple-500/30 bg-purple-500/10">
+   619→                OMNI-CHANNEL
+   620→              </Badge>
+   621→              <h2 className="text-3xl sm:text-4xl font-bold tracking-tight mb-6">
+   622→                Every Channel.<br /><span className="gradient-text">One Conversation.</span>
+   623→              </h2>
+   624→              <p className="text-lg text-slate-400 leading-relaxed mb-8">
+   625→                Traders start on WhatsApp, continue on email, close on a voice call — the agent remembers every word. Zero context loss across any touchpoint. Seamless conversation continuity that traditional platforms simply cannot deliver.
+   626→              </p>
+   627→
+   628→              <div className="space-y-4">
+   629→                {[
+   630→                  { channel: 'Email', desc: 'Automated sequences with smart follow-ups', icon: <Mail className="w-5 h-5" /> },
+   631→                  { channel: 'Live Chat', desc: 'Real-time webchat on your platform', icon: <MessageSquare className="w-5 h-5" /> },
+   632→                  { channel: 'WhatsApp', desc: 'Personal messaging with rich media', icon: <Phone className="w-5 h-5" /> },
+   633→                  { channel: 'SMS', desc: 'Instant outreach and notifications', icon: <Globe className="w-5 h-5" /> },
+   634→                  { channel: 'Voice Call', desc: 'AI-powered natural phone conversations', icon: <Phone className="w-5 h-5" /> },
+   635→                  { channel: 'Voice Messages', desc: 'Async voice notes with AI understanding', icon: <Bot className="w-5 h-5" /> }
+   636→                ].map(ch => (
+   637→                  <div key={ch.channel} className="flex items-center gap-4 glass-card rounded-xl p-3.5 hover:border-purple-500/20 transition-all group cursor-default">
+   638→                    <div className="w-10 h-10 rounded-lg bg-purple-500/10 flex items-center justify-center text-purple-400 group-hover:bg-purple-500/20 transition-colors">
+   639→                      {ch.icon}
+   640→                    </div>
+   641→                    <div>
+   642→                      <div className="text-sm font-semibold text-white">{ch.channel}</div>
+   643→                      <div className="text-xs text-slate-500">{ch.desc}</div>
+   644→                    </div>
+   645→                    <Check className="w-4 h-4 text-green-400 ml-auto" />
+   646→                  </div>
+   647→                ))}
+   648→              </div>
+   649→            </div>
+   650→
+   651→            <div className="relative order-1 lg:order-2">
+   652→              <motion.div
+   653→                whileHover={{ scale: 1.02 }}
+   654→                transition={{ duration: 0.3 }}
+   655→                className="relative rounded-2xl overflow-hidden glow-purple-sm"
+   656→              >
+   657→                <img
+   658→                  src="/images/omnichannel.png"
+   659→                  alt="Omni-Channel Communication"
+   660→                  className="w-full h-auto object-cover"
+   661→                />
+   662→              </motion.div>
+   663→            </div>
+   664→          </div>
+   665→        </div>
+   666→      </Section>
+   667→
+   668→      <div className="section-divider max-w-7xl mx-auto" />
+   669→
+   670→      {/* ═══════════ INCREASE CONVERSION ═══════════ */}
+   671→      <Section className="py-20 sm:py-28">
+   672→        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+   673→          <div className="text-center max-w-3xl mx-auto mb-16">
+   674→            <Badge variant="outline" className="mb-4 px-4 py-1.5 text-xs font-medium tracking-widest text-purple-300 border-purple-500/30 bg-purple-500/10">
+   675→              INCREASE CONVERSION
+   676→            </Badge>
+   677→            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight mb-6">
+   678→              Optimize Every Step.<br /><span className="gradient-text">Maximize Every Conversion.</span>
+   679→            </h2>
+   680→            <p className="text-lg text-slate-400 leading-relaxed">
+   681→              Proprietary AI that handles objections in real-time, closes deposits through natural voice conversations, and converts cold traffic into qualified pipeline — at rates human teams simply cannot sustain.
+   682→            </p>
+   683→          </div>
+   684→
+   685→          {/* Conversion stats */}
+   686→          <div className="grid sm:grid-cols-3 gap-6 mb-16">
+   687→            {[
+   688→              {
+   689→                metric: '3.4x',
+   690→                label: 'Higher Conversion',
+   691→                desc: 'Compared to human-only sales teams',
+   692→                icon: <TrendingUp className="w-6 h-6" />
+   693→              },
+   694→              {
+   695→                metric: '68%',
+   696→                label: 'Faster Close Rate',
+   697→                desc: 'From first touch to funded account',
+   698→                icon: <Zap className="w-6 h-6" />
+   699→              },
+   700→              {
+   701→                metric: '92%',
+   702→                label: 'Trader Satisfaction',
+   703→                desc: 'Instant resolution, zero wait times',
+   704→                icon: <Star className="w-6 h-6" />
+   705→              }
+   706→            ].map((stat, i) => (
+   707→              <motion.div
+   708→                key={stat.label}
+   709→                initial={{ opacity: 0, y: 30 }}
+   710→                whileInView={{ opacity: 1, y: 0 }}
+   711→                viewport={{ once: true }}
+   712→                transition={{ delay: i * 0.15, duration: 0.5 }}
+   713→              >
+   714→                <Card className="glass-card hover:border-purple-500/20 transition-all text-center group">
+   715→                  <CardContent className="p-8">
+   716→                    <div className="w-14 h-14 rounded-2xl bg-purple-500/10 flex items-center justify-center mx-auto mb-5 text-purple-400 group-hover:bg-purple-500/20 transition-colors">
+   717→                      {stat.icon}
+   718→                    </div>
+   719→                    <div className="text-4xl sm:text-5xl font-bold gradient-text mb-2">{stat.metric}</div>
+   720→                    <div className="text-base font-semibold text-white mb-1">{stat.label}</div>
+   721→                    <div className="text-sm text-slate-500">{stat.desc}</div>
+   722→                  </CardContent>
+   723→                </Card>
+   724→              </motion.div>
+   725→            ))}
+   726→          </div>
+   727→
+   728→          {/* Conversion image */}
+   729→          <motion.div
+   730→            initial={{ opacity: 0, y: 30 }}
+   731→            whileInView={{ opacity: 1, y: 0 }}
+   732→            viewport={{ once: true }}
+   733→            transition={{ duration: 0.7 }}
+   734→            className="relative rounded-2xl overflow-hidden glow-purple"
+   735→          >
+   736→            <img
+   737→              src="/images/conversion.png"
+   738→              alt="Increase Conversion with MassaPro"
+   739→              className="w-full h-[300px] sm:h-[400px] object-cover"
+   740→            />
+   741→            <div className="absolute inset-0 bg-gradient-to-r from-[#030712]/80 via-[#030712]/30 to-transparent" />
+   742→            <div className="absolute inset-0 flex items-center p-8 sm:p-12">
+   743→              <div className="max-w-md">
+   744→                <h3 className="text-2xl sm:text-3xl font-bold text-white mb-4">Immediate Action. Immediate Results.</h3>
+   745→                <p className="text-slate-300 leading-relaxed mb-6">
+   746→                  Our proprietary LLM handles real-time objections with financial-fluent precision. AI voice agents close deposits via natural phone conversations — no scripts, no hold times.
+   747→                </p>
+   748→                <a href="#cta" className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-semibold transition-all shadow-lg shadow-purple-500/25 hover:shadow-purple-500/40">
+   749→                  Start Converting
+   750→                  <ArrowRight className="w-5 h-5" />
+   751→                </a>
+   752→              </div>
+   753→            </div>
+   754→          </motion.div>
+   755→        </div>
+   756→      </Section>
+   757→
+   758→      <div className="section-divider max-w-7xl mx-auto" />
+   759→
+   760→      {/* ═══════════ PRICING COMPARISON ═══════════ */}
+   761→      <Section id="pricing" className="py-20 sm:py-28">
+   762→        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+   763→          <div className="text-center max-w-3xl mx-auto mb-16">
+   764→            <Badge variant="outline" className="mb-4 px-4 py-1.5 text-xs font-medium tracking-widest text-purple-300 border-purple-500/30 bg-purple-500/10">
+   765→              PRICING MODEL
+   766→            </Badge>
+   767→            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight mb-6">
+   768→              Pay for Conversations,<br /><span className="gradient-text">Not Minutes</span>
+   769→            </h2>
+   770→            <p className="text-lg text-slate-400 leading-relaxed">
+   771→              Traditional platforms charge per call minute — longer calls cost more. MassaPro charges per entire flow conversation, one price, any length, across all channels.
+   772→            </p>
+   773→          </div>
+   774→
+   775→          <div className="max-w-3xl mx-auto">
+   776→            <Card className="glass-card overflow-hidden">
+   777→              <CardContent className="p-0">
+   778→                {/* Table header */}
+   779→                <div className="grid grid-cols-3 gap-0">
+   780→                  <div className="p-5 border-b border-white/5" />
+   781→                  <div className="p-5 border-b border-white/5 text-center">
+   782→                    <span className="text-xs font-semibold tracking-wider text-slate-500 uppercase">Traditional</span>
+   783→                  </div>
+   784→                  <div className="p-5 border-b border-purple-500/20 text-center bg-purple-500/5">
+   785→                    <span className="text-xs font-semibold tracking-wider text-purple-300 uppercase">MassaPro</span>
+   786→                  </div>
+   787→                </div>
+   788→
+   789→                {/* Table body */}
+   790→                <table className="w-full">
+   791→                  <tbody>
+   792→                    <PricingRow
+   793→                      feature="Pricing Model"
+   794→                      traditional={<span>Per call minute</span>}
+   795→                      massapro={<span className="text-purple-300">Per entire flow</span>}
+   796→                    />
+   797→                    <PricingRow
+   798→                      feature="Cost Predictability"
+   799→                      traditional={<span className="text-red-400">Variable — spikes during peak</span>}
+   800→                      massapro={<span className="text-green-400">Fixed — know what you pay</span>}
+   801→                    />
+   802→                    <PricingRow
+   803→                      feature="Multi-Channel"
+   804→                      traditional={<span className="text-red-400">Each channel billed separately</span>}
+   805→                      massapro={<span className="text-green-400">All channels in one flow</span>}
+   806→                    />
+   807→                    <PricingRow
+   808→                      feature="Conversation Continuity"
+   809→                      traditional={<span className="text-red-400">Lost when switching channels</span>}
+   810→                      massapro={<span className="text-green-400">Seamless across all channels</span>}
+   811→                    />
+   812→                    <PricingRow
+   813→                      feature="Scaling Cost"
+   814→                      traditional={<span className="text-red-400">Rises linearly with volume</span>}
+   815→                      massapro={<span className="text-green-400">Decreases per flow at scale</span>}
+   816→                    />
+   817→                  </tbody>
+   818→                </table>
+   819→              </CardContent>
+   820→            </Card>
+   821→
+   822→            <div className="text-center mt-8">
+   823→              <p className="text-sm text-slate-500">
+   824→                COST-PER-FLOW = 1 Interaction = Entire Flow Conversation (Multichannel)
+   825→              </p>
+   826→            </div>
+   827→          </div>
+   828→        </div>
+   829→      </Section>
+   830→
+   831→      <div className="section-divider max-w-7xl mx-auto" />
+   832→
+   833→      {/* ═══════════ SECURITY ═══════════ */}
+   834→      <Section id="security" className="py-20 sm:py-28">
+   835→        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+   836→          <div className="text-center max-w-3xl mx-auto mb-16">
+   837→            <Badge variant="outline" className="mb-4 px-4 py-1.5 text-xs font-medium tracking-widest text-purple-300 border-purple-500/30 bg-purple-500/10">
+   838→              INFRASTRUCTURE & SECURITY
+   839→            </Badge>
+   840→            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight mb-6">
+   841→              Enterprise-Grade.<br /><span className="gradient-text">By Design.</span>
+   842→            </h2>
+   843→            <p className="text-lg text-slate-400 leading-relaxed">
+   844→              SOC2 compliant infrastructure with end-to-end encryption, GDPR-ready data handling, and 99.99% uptime SLA. Your traders&apos; data never leaves your control.
+   845→            </p>
+   846→          </div>
+   847→
+   848→          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+   849→            {[
+   850→              { icon: <Shield className="w-8 h-8" />, title: 'SOC2 Type II', desc: 'Compliant infrastructure audited and certified for the highest security standards.' },
+   851→              { icon: <Shield className="w-8 h-8" />, title: 'GDPR Ready', desc: 'Full compliance with European data protection regulations. Your data stays protected.' },
+   852→              { icon: <Shield className="w-8 h-8" />, title: 'E2E Encrypted', desc: 'End-to-end encryption ensures every conversation and data point stays private.' },
+   853→              { icon: <Clock className="w-8 h-8" />, title: '99.99% Uptime', desc: 'Enterprise-grade reliability with guaranteed uptime SLA for uninterrupted service.' },
+   854→              { icon: <Globe className="w-8 h-8" />, title: 'Multi-Region', desc: 'Global infrastructure deployment for low-latency conversations worldwide.' },
+   855→              { icon: <Shield className="w-8 h-8" />, title: 'ISO 27001', desc: 'Information security management system certified to international standards.' }
+   856→            ].map((item, i) => (
+   857→              <motion.div
+   858→                key={item.title}
+   859→                initial={{ opacity: 0, y: 20 }}
+   860→                whileInView={{ opacity: 1, y: 0 }}
+   861→                viewport={{ once: true }}
+   862→                transition={{ delay: i * 0.1, duration: 0.5 }}
+   863→                className="glass-card rounded-2xl p-6 text-center hover:border-purple-500/20 transition-all group"
+   864→              >
+   865→                <div className="w-16 h-16 rounded-2xl bg-purple-500/10 flex items-center justify-center mx-auto mb-4 text-purple-400 group-hover:bg-purple-500/20 transition-colors">
+   866→                  {item.icon}
+   867→                </div>
+   868→                <h3 className="text-lg font-semibold text-white mb-2">{item.title}</h3>
+   869→                <p className="text-sm text-slate-400 leading-relaxed">{item.desc}</p>
+   870→              </motion.div>
+   871→            ))}
+   872→          </div>
+   873→        </div>
+   874→      </Section>
+   875→
+   876→      <div className="section-divider max-w-7xl mx-auto" />
+   877→
+   878→      {/* ═══════════ SCALE REVENUE ═══════════ */}
+   879→      <Section className="py-20 sm:py-28 relative overflow-hidden">
+   880→        <div className="absolute inset-0 bg-radial-glow pointer-events-none" />
+   881→        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+   882→          <div className="text-center max-w-3xl mx-auto">
+   883→            <Badge variant="outline" className="mb-4 px-4 py-1.5 text-xs font-medium tracking-widest text-purple-300 border-purple-500/30 bg-purple-500/10">
+   884→              SCALE REVENUE
+   885→            </Badge>
+   886→            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight mb-6">
+   887→              Scale Revenue Without<br /><span className="gradient-text">Scaling Overhead</span>
+   888→            </h2>
+   889→            <p className="text-lg text-slate-400 leading-relaxed mb-12">
+   890→              Deploy once, scale infinitely. MassaPro&apos;s Agentic AI handles thousands of concurrent trader conversations without adding headcount. Your margins grow as your volume does.
+   891→            </p>
+   892→
+   893→            <div className="grid sm:grid-cols-3 gap-6 mb-12">
+   894→              <div className="glass-card rounded-2xl p-8 animate-pulse-glow">
+   895→                <div className="text-4xl font-bold gradient-text mb-2">
+   896→                  <AnimatedCounter end={10} suffix="x" />
+   897→                </div>
+   898→                <div className="text-sm text-slate-400">Concurrent Capacity vs Manual</div>
+   899→              </div>
+   900→              <div className="glass-card rounded-2xl p-8 animate-pulse-glow" style={{ animationDelay: '1s' }}>
+   901→                <div className="text-4xl font-bold gradient-text mb-2">
+   902→                  <AnimatedCounter end={0} prefix="$" suffix="" />
+   903→                </div>
+   904→                <div className="text-sm text-slate-400">Additional Hiring Needed</div>
+   905→              </div>
+   906→              <div className="glass-card rounded-2xl p-8 animate-pulse-glow" style={{ animationDelay: '2s' }}>
+   907→                <div className="text-4xl font-bold gradient-text mb-2">
+   908→                  <AnimatedCounter end={73} suffix="%" />
+   909→                </div>
+   910→                <div className="text-sm text-slate-400">Lower Cost Per Acquisition</div>
+   911→              </div>
+   912→            </div>
+   913→          </div>
+   914→        </div>
+   915→      </Section>
+   916→
+   917→      <div className="section-divider max-w-7xl mx-auto" />
+   918→
+   919→      {/* ═══════════ CTA ═══════════ */}
+   920→      <Section id="cta" className="py-20 sm:py-28 relative overflow-hidden">
+   921→        <div className="absolute inset-0 bg-grid-pattern opacity-50" />
+   922→        <div className="absolute inset-0 bg-radial-glow pointer-events-none" />
+   923→        <div className="absolute top-0 left-1/4 w-96 h-96 bg-purple-600/10 rounded-full blur-[150px] pointer-events-none" />
+   924→        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-purple-500/5 rounded-full blur-[150px] pointer-events-none" />
+   925→
+   926→        <div className="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+   927→          <motion.div
+   928→            initial={{ opacity: 0, y: 30 }}
+   929→            whileInView={{ opacity: 1, y: 0 }}
+   930→            viewport={{ once: true }}
+   931→            transition={{ duration: 0.7 }}
+   932→          >
+   933→            <Badge variant="outline" className="mb-6 px-4 py-1.5 text-xs font-medium tracking-widest text-purple-300 border-purple-500/30 bg-purple-500/10">
+   934→              GET STARTED
+   935→            </Badge>
+   936→            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight mb-6">
+   937→              Ready to Transform Your<br /><span className="gradient-text">Financial Platform?</span>
+   938→            </h2>
+   939→            <p className="text-lg text-slate-400 leading-relaxed mb-10 max-w-2xl mx-auto">
+   940→              Book a personalized demo and see how MassaPro&apos;s Agentic AI can automate your entire trader lifecycle — from first click to funded account.
+   941→            </p>
+   942→
+   943→            {/* Demo form */}
+   944→            <Card className="glass-card max-w-lg mx-auto glow-purple">
+   945→              <CardContent className="p-6 sm:p-8">
+   946→                {formStatus === 'success' ? (
+   947→                  <motion.div
+   948→                    initial={{ opacity: 0, scale: 0.9 }}
+   949→                    animate={{ opacity: 1, scale: 1 }}
+   950→                    className="py-8 text-center"
+   951→                  >
+   952→                    <div className="w-16 h-16 rounded-full bg-green-500/20 flex items-center justify-center mx-auto mb-4">
+   953→                      <Check className="w-8 h-8 text-green-400" />
+   954→                    </div>
+   955→                    <h3 className="text-xl font-semibold text-white mb-2">Demo Requested!</h3>
+   956→                    <p className="text-slate-400 text-sm">Our team will reach out within 24 hours to schedule your personalized demo.</p>
+   957→                  </motion.div>
+   958→                ) : (
+   959→                  <form onSubmit={handleDemoSubmit} className="space-y-4">
+   960→                    <div>
+   961→                      <input
+   962→                        type="email"
+   963→                        value={email}
+   964→                        onChange={(e) => setEmail(e.target.value)}
+   965→                        placeholder="Enter your work email"
+   966→                        required
+   967→                        className="w-full px-5 py-3.5 rounded-xl bg-white/5 border border-purple-500/15 text-white placeholder:text-slate-500 focus:outline-none focus:border-purple-500/40 focus:ring-1 focus:ring-purple-500/20 transition-all text-sm"
+   968→                      />
+   969→                    </div>
+   970→                    <Button
+   971→                      type="submit"
+   972→                      disabled={formStatus === 'loading'}
+   973→                      className="w-full py-3.5 text-base font-semibold rounded-xl bg-purple-600 hover:bg-purple-500 text-white shadow-lg shadow-purple-500/25 hover:shadow-purple-500/40 transition-all disabled:opacity-60 disabled:cursor-not-allowed"
+   974→                    >
+   975→                      {formStatus === 'loading' ? 'Sending...' : 'Book Your Demo'}
+   976→                      <ArrowRight className="w-5 h-5 ml-2" />
+   977→                    </Button>
+   978→                    <p className="text-xs text-slate-600 text-center">
+   979→                      No credit card required. Free consultation included.
+   980→                    </p>
+   981→                    {formStatus === 'error' && (
+   982→                      <p className="text-xs text-red-400 text-center mt-2">Something went wrong. Please try again.</p>
+   983→                    )}
+   984→                  </form>
+   985→                )}
+   986→              </CardContent>
+   987→            </Card>
+   988→
+   989→            {/* Contact info */}
+   990→            <div className="mt-12 flex flex-col sm:flex-row items-center justify-center gap-6 sm:gap-10 text-sm text-slate-500">
+   991→              <a href="mailto:hello@massapro.com" className="flex items-center gap-2 hover:text-purple-400 transition-colors">
+   992→                <Mail className="w-4 h-4" />
+   993→                hello@massapro.com
+   994→              </a>
+   995→              <a href="https://massapro.com" className="flex items-center gap-2 hover:text-purple-400 transition-colors">
+   996→                <Globe className="w-4 h-4" />
+   997→                massapro.com
+   998→              </a>
+   999→            </div>
+  1000→          </motion.div>
+  1001→        </div>
+  1002→      </Section>
+  1003→
+  1004→      {/* ═══════════ FOOTER ═══════════ */}
+  1005→      <footer className="border-t border-purple-500/10 py-10 mt-auto">
+  1006→        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+  1007→          <div className="flex flex-col sm:flex-row items-center justify-between gap-6">
+  1008→            <div className="flex items-center gap-3">
+  1009→              <img src="/images/massapro-logo.png" alt="MassaPro Logo" className="w-8 h-8 rounded-lg shadow-lg shadow-purple-500/20 object-contain" />
+  1010→              <span className="text-lg font-bold tracking-tight">
+  1011→                Massa<span className="gradient-text">Pro</span>
+  1012→              </span>
+  1013→            </div>
+  1014→
+  1015→            <div className="flex items-center gap-6 text-sm text-slate-600">
+  1016→              <span>Agentic AI for Finance</span>
+  1017→              <span className="w-1 h-1 rounded-full bg-slate-700" />
+  1018→              <span>&copy; 2026 MassaPro</span>
+  1019→              <span className="w-1 h-1 rounded-full bg-slate-700" />
+  1020→              <span>All Rights Reserved</span>
+  1021→            </div>
+  1022→
+  1023→            <div className="flex items-center gap-4">
+  1024→              <a href="mailto:hello@massapro.com" className="text-slate-600 hover:text-purple-400 transition-colors">
+  1025→                <Mail className="w-5 h-5" />
+  1026→              </a>
+  1027→              <a href="https://massapro.com" className="text-slate-600 hover:text-purple-400 transition-colors">
+  1028→                <Globe className="w-5 h-5" />
+  1029→              </a>
+  1030→            </div>
+  1031→          </div>
+  1032→        </div>
+  1033→      </footer>
+  1034→    </div>
+  1035→  )
+  1036→}
+  1037→
