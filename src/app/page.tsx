@@ -663,42 +663,46 @@ export default function Home() {
       {/* ═══════════ OMNI-CHANNEL ═══════════ */}
       <Section className="py-20 sm:py-28">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
-            <div className="order-2 lg:order-1">
-              <Badge variant="outline" className="mb-4 px-4 py-1.5 text-xs font-medium tracking-widest text-purple-300 border-purple-500/30 bg-purple-500/10">
-                OMNI-CHANNEL
-              </Badge>
-              <h2 className="text-3xl sm:text-4xl font-bold tracking-tight mb-6">
-                Every Channel.<br /><span className="gradient-text">One Conversation.</span>
-              </h2>
-              <p className="text-lg text-slate-400 leading-relaxed mb-8">
-                Traders start on WhatsApp, continue on email, close on a voice call — the agent remembers every word. Zero context loss across any touchpoint. Seamless conversation continuity that traditional platforms simply cannot deliver.
-              </p>
+          {/* Header - full width */}
+          <div className="mb-10">
+            <Badge variant="outline" className="mb-4 px-4 py-1.5 text-xs font-medium tracking-widest text-purple-300 border-purple-500/30 bg-purple-500/10">
+              OMNI-CHANNEL
+            </Badge>
+            <h2 className="text-3xl sm:text-4xl font-bold tracking-tight mb-6">
+              Every Channel.<br /><span className="gradient-text">One Conversation.</span>
+            </h2>
+            <p className="text-lg text-slate-400 leading-relaxed max-w-2xl">
+              Traders start on WhatsApp, continue on email, close on a voice call — the agent remembers every word. Zero context loss across any touchpoint. Seamless conversation continuity that traditional platforms simply cannot deliver.
+            </p>
+          </div>
 
-              <div className="space-y-4">
-                {[
-                  { channel: 'Email', desc: 'Automated sequences with smart follow-ups', icon: <Mail className="w-5 h-5" /> },
-                  { channel: 'Live Chat', desc: 'Real-time webchat on your platform', icon: <MessageSquare className="w-5 h-5" /> },
-                  { channel: 'WhatsApp', desc: 'Personal messaging with rich media', icon: <Phone className="w-5 h-5" /> },
-                  { channel: 'SMS', desc: 'Instant outreach and notifications', icon: <Globe className="w-5 h-5" /> },
-                  { channel: 'Voice Call', desc: 'AI-powered natural phone conversations', icon: <Phone className="w-5 h-5" /> },
-                  { channel: 'Voice Messages', desc: 'Async voice notes with AI understanding', icon: <Bot className="w-5 h-5" /> }
-                ].map(ch => (
-                  <div key={ch.channel} className="flex items-center gap-4 glass-card rounded-xl p-3.5 hover:border-purple-500/20 transition-all group cursor-default">
-                    <div className="w-10 h-10 rounded-lg bg-purple-500/10 flex items-center justify-center text-purple-400 group-hover:bg-purple-500/20 transition-colors">
-                      {ch.icon}
-                    </div>
-                    <div>
-                      <div className="text-sm font-semibold text-white">{ch.channel}</div>
-                      <div className="text-xs text-slate-500">{ch.desc}</div>
-                    </div>
-                    <Check className="w-4 h-4 text-green-400 ml-auto" />
+          {/* List + Image row */}
+          <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-start">
+            {/* Channel list */}
+            <div className="space-y-4">
+              {[
+                { channel: 'Email', desc: 'Automated sequences with smart follow-ups', icon: <Mail className="w-5 h-5" /> },
+                { channel: 'Live Chat', desc: 'Real-time webchat on your platform', icon: <MessageSquare className="w-5 h-5" /> },
+                { channel: 'WhatsApp', desc: 'Personal messaging with rich media', icon: <Phone className="w-5 h-5" /> },
+                { channel: 'SMS', desc: 'Instant outreach and notifications', icon: <Globe className="w-5 h-5" /> },
+                { channel: 'Voice Call', desc: 'AI-powered natural phone conversations', icon: <Phone className="w-5 h-5" /> },
+                { channel: 'Voice Messages', desc: 'Async voice notes with AI understanding', icon: <Bot className="w-5 h-5" /> }
+              ].map(ch => (
+                <div key={ch.channel} className="flex items-center gap-4 glass-card rounded-xl p-3.5 hover:border-purple-500/20 transition-all group cursor-default">
+                  <div className="w-10 h-10 rounded-lg bg-purple-500/10 flex items-center justify-center text-purple-400 group-hover:bg-purple-500/20 transition-colors">
+                    {ch.icon}
                   </div>
-                ))}
-              </div>
+                  <div>
+                    <div className="text-sm font-semibold text-white">{ch.channel}</div>
+                    <div className="text-xs text-slate-500">{ch.desc}</div>
+                  </div>
+                  <Check className="w-4 h-4 text-green-400 ml-auto" />
+                </div>
+              ))}
             </div>
 
-            <div className="relative order-1 lg:order-2 self-center">
+            {/* Image - aligned to Live Chat (2nd item) top */}
+            <div className="relative self-start lg:mt-[3.75rem]">
               <motion.div
                 whileHover={{ scale: 1.02 }}
                 transition={{ duration: 0.3 }}
@@ -707,7 +711,7 @@ export default function Home() {
                 <img
                   src="/images/omnichannel.png"
                   alt="Omni-Channel Communication"
-                  className="w-full h-auto max-h-[480px] object-contain object-center"
+                  className="w-full h-auto object-contain object-top"
                 />
               </motion.div>
             </div>
